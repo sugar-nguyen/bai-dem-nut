@@ -165,6 +165,7 @@ const Game = function () {
                 else if (score >= 10) score = score % 10;
             } else score = 999;
             arr.push({
+                index: index + 1,
                 name: item[0],
                 score: score
             });
@@ -172,19 +173,19 @@ const Game = function () {
 
         arr.sort((a, b) => b.score - a.score);
 
-        var player2 = {
-            left: $('#player_2').position().left,
-            top: $('#player_2').position().top
-        };
-        var player1 = {
-            left: $('#player_1').position().left,
-            top: $('#player_1').position().top
-        }
+        arr.forEach((item, index) => {
+            setTimeout(function () {
+                var position = {
+                    left: $(`#player_${index + 1}`).position().left,
+                    top: $(`#player_${index + 1}`).position().top
+                };
 
-        // $('#player_1').animate({ left: player2.left, top: player2.top });
-        setTimeout(function () {
-            $('#player_2').animate({ left: player1.left, top: player1.top });
-        }, 200);
+                var left = item.index === 1 ? position.left * -1 : position.left;
+
+                $(`#player_${item.index}`).animate({ left: left, top: position.top }, 200);
+            }, 1000);
+
+        });
 
 
     }
