@@ -68,7 +68,7 @@ const Game = function () {
                         </div>`).insertAfter(wrapper);
                 });
                 success();
-            }, 1000);
+            }, 500);
 
 
         });
@@ -85,10 +85,10 @@ const Game = function () {
 
                 setTimeout(function () {
                     g.sort(hands);
-                }, 2000);
-            }, 1000);
-        });
-
+                }, 1000);
+               
+            }, 2000);
+        })
 
     }
     this.createDeck = function () {
