@@ -43,8 +43,8 @@ const Game = function () {
                             var marginT = i > 0 ? "-mt-[98%]" : "";
                             var cardElement = $(` <div class="w-full">
                                              <div class="${marginT} shadow-lg relative">
-                                                 <img src="/assets/imgs/back.png" class="cards-back card" alt="">
-                                                 <img src="/assets/imgs/${hands[player][i].name}" class="hidden card cards-front" alt="">
+                                                 <img src="assets/imgs/back.png" class="cards-back card" alt="">
+                                                 <img src="assets/imgs/${hands[player][i].name}" class="hidden card cards-front" alt="">
                                              </div>
                                          </div>`);
                             $(wrapper).append(cardElement);
