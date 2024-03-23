@@ -15,7 +15,7 @@ const Game = function () {
         });
     }
     this.renderCards = function (playerList) {
-        var gridCol = 7;
+        var gridCol = 8;
         var deck = g.createDeck();
         var hands = g.dealCards(playerList, deck);
 
@@ -62,13 +62,13 @@ const Game = function () {
                         return false;
                     });
 
-                    var message = g.getPoint(hands, player);
-                    $(`<div class="w-full p2-4 flex justify-center border border-gray-400 mt-2 bg-white shadow-md hidden point">
-                        <span class="font-bold text-lg">${message}</span>
+                    var resultPoint = g.getPoint(hands, player);
+                    $(`<div class="w-full p2-4 flex justify-center border border-gray-400 mt-2 bg-white shadow-md hidden point  ${resultPoint.className} ${resultPoint.textColor}">
+                        <span class="font-bold text-lg">${resultPoint.text}</span>
                         </div>`).insertAfter(wrapper);
                 });
                 success();
-            }, 2000);
+            }, 500);
 
 
         });
@@ -85,8 +85,8 @@ const Game = function () {
 
                 setTimeout(function () {
                     g.sort(hands);
-                }, 1000);
-            }, 4000);
+                }, 2000);
+            }, 1000);
         });
 
 
@@ -107,19 +107,38 @@ const Game = function () {
     this.getPoint = function (hands, player) {
         var point = 0;
         var is3Cao = hands[player].filter(x => x.point === 999).length === 3;
-        if (!is3Cao) {
-            for (let hand of hands[player]) {
-                var p = hand.point;
-                if (p === 999) p = 0;
-                point += p;
-            }
+
+        if(is3Cao){
+            point = 999;
+            return {
+                className: 'bg-blue-600' ,
+                textColor: "text-white" ,
+                text: "3 cào"
+            };
+        }
+
+        for (let hand of hands[player]) {
+            var p = hand.point;
+            if (p === 999) p = 0;
+            point += p;
         }
 
         if (point >= 20) point = point % 20;
         else if (point >= 10) point = point % 10;
 
-        var message = point > 0 ? point + " nút" : "bù trất";
-        return is3Cao ? "3 cào" : message;
+        var message = point > 0 ? point + " điểm" : "bù trất";
+        if(point > 0){
+            return {
+                className: point == 9 ? "bg-emerald-800" : "bg-white" ,
+                textColor: point == 9 ? "text-white" : "text-black",
+                text:  message
+            }
+        }
+        return {
+            className: "bg-rose-950",
+            textColor: "text-white",
+            text: message
+        }
     }
     this.dealCards = function (playerList, deck) {
         const hands = {};
@@ -150,6 +169,7 @@ const Game = function () {
         });
     }
     this.sort = function (hands) {
+        console.log(hands);
         const entries = Object.entries(hands);
         var arr = [];
         entries.forEach((item, index) => {
@@ -165,25 +185,57 @@ const Game = function () {
                 else if (score >= 10) score = score % 10;
             } else score = 999;
             arr.push({
-                index: index + 1,
+                index: index,
                 name: item[0],
-                score: score
+                score: score,
+                position: {
+                    left: $(`#player_${index+1}`).position().left,
+                    top: $(`#player_${index+1}`).position().top
+                }
             });
         });
-
-        arr.sort((a, b) => b.score - a.score);
-
-        arr.forEach((item, index) => {
+        console.log(arr);
+        var arrSort = Array.from(arr).sort((a, b) => b.score - a.score);
+        console.log(arrSort);
+        // var bigestScore = arrSort[0].score;
+        // var smalledScore = arrSort[arrSort.length - 1].score;
+        arrSort.forEach((item, index) => {
             setTimeout(function () {
-                var position = {
-                    left: $(`#player_${index + 1}`).position().left,
-                    top: $(`#player_${index + 1}`).position().top
-                };
+                var moveToObj = arr[index];
 
-                var left = item.index === 1 ? position.left * -1 : position.left;
 
-                $(`#player_${item.index}`).animate({ left: left, top: position.top }, 200);
-            }, 1000);
+                /*
+                - Những trường hợp không di chuyển:
+                1. Di chuyển về chính nó
+                */
+                var isNotMove = item.index === moveToObj.index; //1
+                if (!isNotMove) {
+                    // nếu tọa độ ví trí cần move tới nhỏ hơn tọa độ vị trí hiện tại thì move bằng tọa độ của chính nó * -1
+                    // ngược lại thì move bằng tọa độ mới của obj target
+                    var moveLeft = 0;
+                    if (index === 0 || item.index === 0) {
+                        moveLeft = item.index > index ? item.position.left * -1 : moveToObj.position.left;
+                    } else if (item.position.left < moveToObj.position.left) {
+                        if ((moveToObj.position.left / 2).toFixed(0) == item.position.left.toFixed(0)) {
+                            moveLeft = moveToObj.position.left / 2;
+                        } else {
+                            moveLeft = moveToObj.position.left - item.position.left
+                        }
+
+                    } else {
+                        moveLeft = (item.position.left - moveToObj.position.left) * -1;
+                    }
+                    console.log(`item ${item.name} move to ${moveToObj.name} move left: ${moveLeft}px`);
+                    $(`#player_${item.index+1}`).animate({
+                        left: moveLeft,
+                        top: moveToObj.position.top
+                    }, 100);
+
+                } else {
+                    console.log(`ngoại lệ name:${item.name} item.index:${item.index}, index: ${index}, item.score:${item.score}, moveToObj.score:${moveToObj.score}`);
+                }
+
+            }, 200 );
 
         });
 
