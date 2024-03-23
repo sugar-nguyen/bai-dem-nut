@@ -68,7 +68,7 @@ const Game = function () {
                         </div>`).insertAfter(wrapper);
                 });
                 success();
-            }, 500);
+            }, 1000);
 
 
         });
